@@ -1,0 +1,128 @@
+/*
+  For use with the Brainpad and editor on https://makecode.brainpad.com/
+*/
+
+let sequenceCompleted = 0
+let buttonPressCount = 0
+let randPick = ""
+let availableMoves: string[] = []
+let playersTurn = 0
+let isGameStarted = 0
+let lastButtonPress = ""
+let sound = ""
+let gameSequence: string[] = []
+function playSequence() {
+    for (let value of gameSequence) {
+        lastButtonPress = value
+        playSound()
+    }
+}
+function GameOver() {
+    display.clear()
+    display.showString("NOPE!", 3)
+    music.playSoundUntilDone(music.sounds(Sounds.Wawawawaa))
+    display.showString("Game Over", 1)
+    display.showString("You had ", 2)
+    display.showNumber(gameSequence.length - 1, 3)
+    display.showString("correct", 4)
+    pause(3000)
+    display.clear()
+    display.showImage(images.triceratop)
+    pause(3000)
+    control.reset()
+}
+function startGame() {
+    display.clear()
+    isGameStarted = 1
+    gameSequence = []
+    playersTurn = 0
+}
+function nextMove() {
+    display.clear()
+    if (isGameStarted == 0) {
+        startGame()
+        lastButtonPress = ""
+        nextMove()
+    } else {
+        if (playersTurn == 0) {
+            display.showString("My Turn!", 1)
+            pause(2000)
+            randPick = availableMoves[Math.randomRange(0, 3)]
+            gameSequence.push(randPick)
+            playSequence()
+            buttonPressCount = 0
+            playersTurn = 1
+            sequenceCompleted = 0
+            display.showString("Your Turn!", 1)
+        } else {
+            if (lastButtonPress == gameSequence[buttonPressCount]) {
+                playSound()
+                buttonPressCount += 1
+                if (buttonPressCount == gameSequence.length) {
+                    sequenceCompleted = 1
+                    playersTurn = 0
+                    nextMove()
+                }
+            } else {
+                GameOver()
+            }
+        }
+    }
+}
+function playSound() {
+    sound = lastButtonPress
+    if (sound == "") {
+        music.playTone(131, music.beat(BeatFraction.Whole))
+    } else if (sound == "L") {
+        display.showString("L - <", 3)
+        music.playTone(440, music.beat(BeatFraction.Whole))
+        lightbulb.setColor(0xff0000)
+    } else if (sound == "U") {
+        display.showString("U - ^", 3)
+        music.playTone(523, music.beat(BeatFraction.Whole))
+        lightbulb.setColor(0x007fff)
+    } else if (sound == "R") {
+        display.showString("R - >", 3)
+        music.playTone(392, music.beat(BeatFraction.Whole))
+        lightbulb.setColor(0x00ff00)
+    } else if (sound == "D") {
+        display.showString("D - v", 3)
+        music.playTone(349, music.beat(BeatFraction.Whole))
+        lightbulb.setColor(0xffffff)
+    }
+}
+input.buttonDown.onEvent(ButtonEvent.Click, function () {
+    lastButtonPress = "D"
+    nextMove()
+})
+input.buttonUp.onEvent(ButtonEvent.Click, function () {
+    lastButtonPress = "U"
+    nextMove()
+})
+input.buttonLeft.onEvent(ButtonEvent.Click, function () {
+    lastButtonPress = "L"
+    nextMove()
+})
+input.buttonRight.onEvent(ButtonEvent.Click, function () {
+    lastButtonPress = "R"
+    nextMove()
+})
+gameSequence = ["U", "R", "D", "L"]
+playSequence()
+isGameStarted = 0
+lastButtonPress = ""
+availableMoves = ["L", "U", "R", "D"]
+isGameStarted = 0
+display.showString("Simon Says!", 1)
+display.showString("See if you can ", 2)
+display.showString("copy me!", 3)
+pause(3000)
+if (isGameStarted == 0) {
+    display.clear()
+    display.showString("Are you Ready?", 3)
+    display.showString("Press any Button", 4)
+    display.showString("To Play", 5)
+}
+forever(function () {
+	
+})
